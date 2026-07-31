@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Microstructure Copilot — SEM Review · Radical AI Prototypes</title>
+<link rel="stylesheet" href="../assets/styles.css" />
+<style>
+  .sem-frame {
+    background: var(--bg-inset);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.9rem;
+    margin: 0.8rem 0 1rem;
+  }
+  .sem-frame .cap { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-faint); margin-top: 0.5rem; text-align: center; }
+  .timer { font-family: var(--font-mono); font-size: 2.1rem; color: var(--copper); font-weight: 700; }
+  .timer.done { color: var(--ok); }
+
+  .batch-chart { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; align-items: end; height: 90px; margin: 0.6rem 0 0.3rem; }
+  .batch-chart .b { background: var(--ink-faint); border-radius: 2px 2px 0 0; align-self: end; }
+  .batch-chart.manual .b { background: var(--warn); }
+  .batch-chart.auto .b { background: var(--cyan); }
+  .batch-row { margin-bottom: 1rem; }
+  .batch-row .rowlbl { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint); margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+
+  .anneal-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .anneal-box { border-radius: var(--radius); padding: 1rem 1.1rem; border: 1px solid var(--rule); }
+  .anneal-box.old { background: var(--bg-inset); }
+  .anneal-box.new { background: var(--cyan-soft); border-color: var(--cyan-line); }
+  .anneal-box h4 { margin: 0 0 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+  .anneal-box .time { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; }
+  .anneal-box.old .time { color: var(--warn); }
+  .anneal-box.new .time { color: var(--cyan); }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="../index.html">&larr; ALL CONSOLES</a>
+      <button class="learning-toggle" data-learning-toggle type="button"><span>Learning mode</span><span class="sw"></span></button>
+    </div>
+
+    <span class="eyebrow copper">03 / Characterize &mdash; Microstructure Copilot</span>
+    <h1 class="page-title">SEM Review &amp; Annealing Call</h1>
+    <p class="dek">Every synthesized sample (console 02) gets imaged. This is the screen a metallurgist uses to turn a microscopy image into a measurement &mdash; and the measurement into a decision.</p>
+
+    <div class="edu-note">
+      <span class="tp-label">Why this screen exists</span>
+      Radical AI's post <a href="https://www.radical-ai.com/news/scale-speed-precision-automated-microstructure-analysis-moves-different" target="_blank" rel="noopener">"Scale, Speed, Precision"</a> describes automating <button class="term" data-term="SDAS — Secondary Dendrite Arm Spacing" data-def="The distance between secondary branches on a dendrite crystal as an alloy solidifies. Finer spacing generally means a more uniform microstructure; SDAS is a standard proxy metallurgists use to judge how well a casting solidified and how much annealing it needs.">SDAS</button> measurement: manual measurement took ~15 minutes per image and varied &plusmn;16% between operators; their automated segmentation model does it in ~1 second, trained on 10,000+ SEM images from nine months of autonomous lab operation. This console visualizes that workflow with an illustrative (non-photographic) dendrite diagram.
+    </div>
+
+    <section class="block">
+      <h2>Persona</h2>
+      <div class="persona">
+        <div class="avatar">EV</div>
+        <div class="who">
+          <div class="name">Elena Vasquez</div>
+          <div class="role">Process Metallurgist, Radical AI</div>
+        </div>
+        <div class="facts">
+          <div><h4>Goal</h4><p>Set the correct annealing time for each batch &mdash; long enough to homogenize the microstructure, short enough not to waste station time other jobs are waiting on.</p></div>
+          <div><h4>Problem</h4><p>"Too little annealing time and the material isn't homogenized. Too much and you've wasted days or weeks" &mdash; and the SDAS reading that decision depends on used to vary by up to 16% depending who measured it.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>The numbers this screen is built around</h2>
+      <div class="stat-grid">
+        <div class="stat-tile phys"><div class="val tabular">15:00 &rarr; 0:01</div><div class="lbl">Per-image analysis time</div></div>
+        <div class="stat-tile phys"><div class="val tabular">&plusmn;16%</div><div class="lbl">Operator variance removed</div></div>
+        <div class="stat-tile phys"><div class="val tabular">10,000+</div><div class="lbl">SEM images in training set</div></div>
+        <div class="stat-tile phys"><div class="val tabular">9 mo.</div><div class="lbl">Of autonomous lab data</div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Console</h2>
+      <nav class="journey">
+        <button data-step="manual" aria-current="step"><span class="idx">1</span>Manual method</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="auto"><span class="idx">2</span>Automated method</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="anneal"><span class="idx">3</span>Annealing call</button>
+      </nav>
+
+      <div class="console">
+        <div class="console-titlebar">
+          <span class="traffic"><span></span><span></span><span></span></span>
+          <span class="name">microstructure-copilot &mdash; sample #A-2291-S1</span>
+        </div>
+        <div class="console-body">
+
+          <div class="step-panel active" data-step-panel="manual">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Three operators, three rulers, three different answers &mdash; the status quo before automation.</p>
+            <div class="sem-frame">
+              <svg viewBox="0 0 420 180" width="100%" height="180" role="img" aria-label="Illustrative dendrite diagram with three overlapping manual measurements">
+                <line x1="60" y1="20" x2="60" y2="160" stroke="#8A99A0" stroke-width="2"/>
+                <g stroke="#8A99A0" stroke-width="2">
+                  <line x1="60" y1="30" x2="110" y2="30"/>
+                  <line x1="60" y1="58" x2="115" y2="58"/>
+                  <line x1="60" y1="82" x2="108" y2="82"/>
+                  <line x1="60" y1="112" x2="118" y2="112"/>
+                  <line x1="60" y1="140" x2="110" y2="140"/>
+                </g>
+                <g font-family="Consolas, monospace" font-size="10">
+                  <line x1="140" y1="30" x2="140" y2="58" stroke="#E0B84A" stroke-dasharray="3,2"/>
+                  <text x="146" y="48" fill="#E0B84A">A: 15.2&#181;m</text>
+                  <line x1="200" y1="58" x2="200" y2="82" stroke="#E0614F" stroke-dasharray="3,2"/>
+                  <text x="206" y="74" fill="#E0614F">B: 21.4&#181;m</text>
+                  <line x1="260" y1="82" x2="260" y2="112" stroke="#E7ECEE" stroke-dasharray="3,2"/>
+                  <text x="266" y="102" fill="#E7ECEE">C: 17.8&#181;m</text>
+                </g>
+              </svg>
+              <div class="cap">Illustrative diagram, not an actual micrograph &mdash; three operators' independent SDAS calls on the same image</div>
+            </div>
+            <div class="stat-grid">
+              <div class="stat-tile"><div class="val tabular" id="manualTimer">15:00</div><div class="lbl">Time to measure</div></div>
+              <div class="stat-tile"><div class="val tabular">15.2&ndash;21.4&micro;m</div><div class="lbl">Range across 3 operators</div></div>
+              <div class="stat-tile"><div class="val tabular">&plusmn;16%</div><div class="lbl">Spread from mean</div></div>
+            </div>
+            <div class="btn-row"><button class="btn ghost" id="startTimer">Start manual measurement &rarr;</button></div>
+          </div>
+
+          <div class="step-panel" data-step-panel="auto">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">The segmentation model finds every arm on the full image, not one hand-drawn line, and returns one number.</p>
+            <div class="sem-frame">
+              <svg viewBox="0 0 420 180" width="100%" height="180" role="img" aria-label="Illustrative dendrite diagram with automated segmentation">
+                <line x1="60" y1="20" x2="60" y2="160" stroke="#8A99A0" stroke-width="2"/>
+                <g stroke="#35C6D1" stroke-width="2">
+                  <line x1="60" y1="30" x2="110" y2="30"/>
+                  <line x1="60" y1="58" x2="115" y2="58"/>
+                  <line x1="60" y1="82" x2="108" y2="82"/>
+                  <line x1="60" y1="112" x2="118" y2="112"/>
+                  <line x1="60" y1="140" x2="110" y2="140"/>
+                </g>
+                <g fill="#35C6D1"><circle cx="110" cy="30" r="3"/><circle cx="115" cy="58" r="3"/><circle cx="108" cy="82" r="3"/><circle cx="118" cy="112" r="3"/><circle cx="110" cy="140" r="3"/></g>
+                <g font-family="Consolas, monospace" font-size="10" fill="#35C6D1">
+                  <line x1="150" y1="30" x2="150" y2="58" stroke="#35C6D1" stroke-dasharray="2,2"/><text x="156" y="48">18.6&#181;m</text>
+                  <line x1="150" y1="58" x2="150" y2="82" stroke="#35C6D1" stroke-dasharray="2,2"/><text x="156" y="74">18.1&#181;m</text>
+                  <line x1="150" y1="82" x2="150" y2="112" stroke="#35C6D1" stroke-dasharray="2,2"/><text x="156" y="101">18.9&#181;m</text>
+                  <line x1="150" y1="112" x2="150" y2="140" stroke="#35C6D1" stroke-dasharray="2,2"/><text x="156" y="130">18.2&#181;m</text>
+                </g>
+              </svg>
+              <div class="cap">Segmentation confidence 0.97 &middot; every arm pair measured, not just one sampled span</div>
+            </div>
+            <div class="stat-grid">
+              <div class="stat-tile"><div class="val tabular" id="autoTimer">0:01</div><div class="lbl">Time to measure</div></div>
+              <div class="stat-tile"><div class="val tabular">18.4&micro;m</div><div class="lbl">Mean SDAS, full-image</div></div>
+              <div class="stat-tile"><div class="val tabular">&plusmn;0.4%</div><div class="lbl">Spread across arm pairs</div></div>
+            </div>
+
+            <div class="batch-row">
+              <div class="rowlbl"><span>Manual &mdash; 8 samples, one operator each</span><span>high spread</span></div>
+              <div class="batch-chart manual">
+                <div class="b" style="height:52%"></div><div class="b" style="height:88%"></div><div class="b" style="height:64%"></div><div class="b" style="height:96%"></div>
+                <div class="b" style="height:58%"></div><div class="b" style="height:80%"></div><div class="b" style="height:62%"></div><div class="b" style="height:92%"></div>
+              </div>
+            </div>
+            <div class="batch-row">
+              <div class="rowlbl"><span>Automated &mdash; same 8 samples</span><span>consistent</span></div>
+              <div class="batch-chart auto">
+                <div class="b" style="height:70%"></div><div class="b" style="height:74%"></div><div class="b" style="height:71%"></div><div class="b" style="height:73%"></div>
+                <div class="b" style="height:72%"></div><div class="b" style="height:70%"></div><div class="b" style="height:74%"></div><div class="b" style="height:72%"></div>
+              </div>
+            </div>
+            <div class="edu-note">
+              <span class="tp-label">Why consistency matters more than precision</span>
+              "When every measurement follows the same method, comparisons across samples are meaningful in a way they aren't when manual measurements carry operator-to-operator variance" &mdash; direct quote from Radical AI's post. A batch of 8 wildly different manual readings can't tell you whether your process is actually improving; a batch of 8 consistent automated readings can.
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="anneal">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">The SDAS reading feeds directly into how long this batch anneals.</p>
+            <div class="anneal-compare">
+              <div class="anneal-box old">
+                <h4>Old default (uncertain measurement)</h4>
+                <div class="time">24h</div>
+                <p style="font-size:0.85rem; color:var(--ink-dim); margin:0.4rem 0 0">Conservative maximum, chosen because a &plusmn;16% measurement error means you can't safely cut it closer.</p>
+              </div>
+              <div class="anneal-box new">
+                <h4>Data-driven, this batch</h4>
+                <div class="time">6&ndash;8h</div>
+                <p style="font-size:0.85rem; color:var(--ink); margin:0.4rem 0 0">18.4&micro;m mean SDAS with &plusmn;0.4% spread supports a tight, specific window instead of a blanket maximum.</p>
+              </div>
+            </div>
+            <div class="callout insight">
+              <span class="label">Station-time reclaimed</span>
+              <p>~16&ndash;18 hours freed on this station alone &mdash; time that goes straight back into the queue Marcus manages in console 02. Multiply across every batch in a 25-alloy-a-day lab and the measurement-precision problem turns out to gate <em>throughput</em>, not just data quality.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The story this screen is solving</h2>
+      <div class="callout story">
+        <span class="label">Realistic scenario</span>
+        <p>Before this tool existed, Elena's team defaulted every batch to a 24-hour anneal, because nobody trusted a manual SDAS reading enough to cut it shorter &mdash; the cost of guessing wrong (an under-annealed part failing downstream) was worse than the cost of wasting a day of station time. Once measurement stopped being the uncertain variable, the annealing schedule could finally respond to what the material actually needed instead of the worst case. It's a small-sounding fix &mdash; a segmentation model on a microscope image &mdash; that turns out to unlock station capacity across the entire lab.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Sources</h2>
+      <div class="sources">
+        <span class="cite"><a href="https://www.radical-ai.com/news/scale-speed-precision-automated-microstructure-analysis-moves-different" target="_blank" rel="noopener">"Scale, Speed, Precision" blog post</a> &mdash; all metrics and both direct quotes on this page</span>
+      </div>
+    </section>
+
+    <footer class="foot">Console 03 of 5 &mdash; Microstructure Copilot (Characterize). <a href="../index.html">Back to all consoles</a></footer>
+  </div>
+
+  <script src="../assets/app.js" defer></script>
+  <script>
+    (function () {
+      var startBtn = document.getElementById("startTimer");
+      var manualTimer = document.getElementById("manualTimer");
+      startBtn.addEventListener("click", function () {
+        var seconds = 15 * 60;
+        startBtn.disabled = true;
+        startBtn.textContent = "Measuring…";
+        var interval = setInterval(function () {
+          seconds -= 27; // sped up for the prototype
+          if (seconds <= 0) {
+            seconds = 0;
+            clearInterval(interval);
+            manualTimer.textContent = "0:00";
+            manualTimer.classList.add("done");
+            startBtn.textContent = "Measured — 15:00 elapsed (sped up here)";
+            window.RadicalUI.toast("Manual measurement complete — 15 minutes, one image");
+            return;
+          }
+          var m = Math.floor(seconds / 60), s = seconds % 60;
+          manualTimer.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+        }, 90);
+      });
+    })();
+  </script>
+</body>
+</html>

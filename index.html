@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Radical AI — Product Prototype Gallery</title>
+<link rel="stylesheet" href="assets/styles.css" />
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.3rem 1.4rem 1.4rem;
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent-bar, var(--cyan));
+  }
+  .card:hover { border-color: var(--rule-strong); transform: translateY(-2px); text-decoration: none; }
+  .card .idx { font-family: var(--font-mono); color: var(--ink-faint); font-size: 0.72rem; }
+  .card h3 { margin: 0.4rem 0 0.3rem; font-size: 1.15rem; }
+  .card p.tag { color: var(--ink-dim); font-size: 0.88rem; margin: 0 0 0.9rem; flex-grow: 1; }
+  .card .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+  .card .enter { font-family: var(--font-mono); font-size: 0.76rem; color: var(--cyan); }
+  .card.phys { --accent-bar: var(--copper); }
+
+  .source-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .howto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 0;
+  }
+  .howto .item {
+    background: var(--bg-inset);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    font-size: 0.86rem;
+    color: var(--ink-dim);
+  }
+  .howto .item b { color: var(--ink); display: block; margin-bottom: 0.3rem; font-family: var(--font-mono); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <span class="mono">RADICAL://PROTOTYPES</span>
+      <span class="sys"><span class="dot"></span>5 consoles built from public research</span>
+    </div>
+
+    <span class="eyebrow cyan">Speculative build — not an official Radical AI product</span>
+    <h1 class="page-title">What Radical AI's product surface probably looks like</h1>
+    <p class="dek">Five interactive prototypes reverse-engineered from Radical AI's own published pages, blog posts, and one peer-reviewed benchmark paper — built as a study exercise ahead of a Product Manager interview with co-founder Jorge Colindres. Each console cites exactly what it's grounded in; nothing here is confirmed by the company.</p>
+
+    <div class="source-strip">
+      <span class="cite">Antimatter — <a href="https://www.radical-ai.com/antimatter" target="_blank" rel="noopener">radical-ai.com/antimatter</a></span>
+      <span class="cite">Autonomous Lab — <a href="https://www.radical-ai.com/autonomous-lab" target="_blank" rel="noopener">radical-ai.com/autonomous-lab</a></span>
+      <span class="cite">Microstructure post — <a href="https://www.radical-ai.com/news/scale-speed-precision-automated-microstructure-analysis-moves-different" target="_blank" rel="noopener">radical-ai.com/news</a></span>
+      <span class="cite">LitXBench — <a href="https://arxiv.org/abs/2604.07649" target="_blank" rel="noopener">arXiv:2604.07649</a></span>
+      <span class="cite">LitXBench code — <a href="https://github.com/Radical-AI/litxbench" target="_blank" rel="noopener">github.com/Radical-AI</a></span>
+      <span class="cite">Founder interview — <a href="https://www.cognitiverevolution.ai/material-abundance-radical-ais-closed-loop-lab-automates-scientific-discovery/" target="_blank" rel="noopener">Cognitive Revolution</a></span>
+      <span class="cite">Vision — <a href="https://www.radical-ai.com/vision" target="_blank" rel="noopener">radical-ai.com/vision</a></span>
+    </div>
+
+    <section class="block">
+      <h2>How to use this</h2>
+      <p class="lede">Each console below is a full page: a clickable product-screen mock, a persona and user journey, a realistic story grounded in Radical AI's actual customers and stated numbers, and a citation trail.</p>
+      <div class="howto">
+        <div class="item"><b>Journey steps</b>Click through the numbered steps atop each console — the screen actually changes state, it isn't a static image.</div>
+        <div class="item"><b>Dashed terms</b>Any underlined term (like this) is clickable and opens a plain-language definition inline.</div>
+        <div class="item"><b>Learning mode</b>Flip the toggle in the top-right of any console page to reveal "why this matters" annotations pinned to the real research.</div>
+        <div class="item"><b>Copper vs. cyan</b>Copper marks the physical/lab side of the product; cyan marks the AI/prediction side — carried consistently across all five screens.</div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The five consoles</h2>
+      <p class="lede">Ordered to follow Radical AI's own closed loop: predict a candidate → run it in the lab → read the result → mine the literature that seeded the prediction → decide how much of this an agent should be allowed to do on its own.</p>
+
+      <div class="cards">
+        <a class="card" href="prototypes/antimatter.html">
+          <span class="idx">01 / DESIGN</span>
+          <h3>Antimatter</h3>
+          <p class="tag">Inverse-design console — spec a target property, screen 10 billion candidate compositions down to the ~100 worth synthesizing.</p>
+          <div class="meta"><span class="pill info">AI / prediction</span><span class="pill">GaN semiconductor case</span></div>
+          <span class="enter">Enter console →</span>
+        </a>
+
+        <a class="card phys" href="prototypes/autonomous-lab.html">
+          <span class="idx">02 / SYNTHESIZE</span>
+          <h3>Autonomous Lab</h3>
+          <p class="tag">Live run-queue for the physical lab — 25+ alloys/day, a digital trail per sample, an explore-vs-exploit dial on what gets tested next.</p>
+          <div class="meta"><span class="pill warn">Physical / robotics</span><span class="pill">Ops dashboard</span></div>
+          <span class="enter">Enter console →</span>
+        </a>
+
+        <a class="card phys" href="prototypes/microstructure-copilot.html">
+          <span class="idx">03 / CHARACTERIZE</span>
+          <h3>Microstructure Copilot</h3>
+          <p class="tag">SEM image review — automated dendrite-spacing measurement that cuts 15 minutes to 1 second and removes ±16% operator variance.</p>
+          <div class="meta"><span class="pill warn">Physical / vision</span><span class="pill">Scientist QA tool</span></div>
+          <span class="enter">Enter console →</span>
+        </a>
+
+        <a class="card" href="prototypes/litxbench.html">
+          <span class="idx">04 / LEARN</span>
+          <h3>LitXBench Agent</h3>
+          <p class="tag">Literature-mining assistant — extracts structured experiments from published alloy papers, built on Radical AI's own arXiv benchmark.</p>
+          <div class="meta"><span class="pill info">AI / literature</span><span class="pill">Research tool</span></div>
+          <span class="enter">Enter console →</span>
+        </a>
+
+        <a class="card" href="prototypes/agent-console.html">
+          <span class="idx">05 / ITERATE</span>
+          <h3>Agent Autonomy Console</h3>
+          <p class="tag">The trust layer — how much should an AI agent be allowed to do to real lab equipment before a human signs off? This is the surface the PM role owns.</p>
+          <div class="meta"><span class="pill info">AI / agents</span><span class="pill crit">Most speculative</span></div>
+          <span class="enter">Enter console →</span>
+        </a>
+      </div>
+    </section>
+
+    <footer class="foot">
+      Built from Radical AI's public site, blog, and one arXiv paper (Chong &amp; Colindres, 2026) as a personal study exercise. Product names, screens, and personas are reconstructions, not confirmed specifications.
+    </footer>
+  </div>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

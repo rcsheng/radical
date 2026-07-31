@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antimatter — Inverse Design Console · Radical AI Prototypes</title>
+<link rel="stylesheet" href="../assets/styles.css" />
+<style>
+  .funnel { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0 1.3rem; }
+  .funnel .bar-row { display: grid; grid-template-columns: 110px 1fr 90px; align-items: center; gap: 0.7rem; }
+  .funnel .bar-label { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); }
+  .funnel .bar-track { background: var(--bg-inset); border: 1px solid var(--rule); border-radius: 3px; height: 20px; overflow: hidden; }
+  .funnel .bar-fill { height: 100%; background: linear-gradient(90deg, var(--cyan-soft), var(--cyan)); }
+  .funnel .bar-val { font-family: var(--font-mono); font-size: 0.78rem; text-align: right; color: var(--ink); }
+
+  .ee-split { display: flex; height: 26px; border-radius: 3px; overflow: hidden; border: 1px solid var(--rule); }
+  .ee-split .exploit { background: var(--cyan); }
+  .ee-split .explore { background: var(--copper); }
+  .ee-legend { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.72rem; margin-top: 0.4rem; color: var(--ink-dim); }
+  .ee-legend .exploit-lbl::before { content: "■ "; color: var(--cyan); }
+  .ee-legend .explore-lbl::before { content: "■ "; color: var(--copper); }
+
+  .confidence-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .confidence-compare .box { background: var(--bg-inset); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.9rem 1rem; }
+  .confidence-compare h4 { margin: 0 0 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+  .conf-bar-track { background: var(--bg); border: 1px solid var(--rule); border-radius: 3px; height: 14px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; background: var(--cyan); }
+  .conf-val { font-family: var(--font-mono); font-size: 1.1rem; margin-top: 0.4rem; color: var(--ink); }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="../index.html">&larr; ALL CONSOLES</a>
+      <button class="learning-toggle" data-learning-toggle type="button"><span>Learning mode</span><span class="sw"></span></button>
+    </div>
+
+    <span class="eyebrow cyan">01 / Design &mdash; Antimatter</span>
+    <h1 class="page-title">Inverse Design Console</h1>
+    <p class="dek">Specify the material property you need. Antimatter screens billions of candidate compositions and hands the physical lab a short list worth actually synthesizing.</p>
+
+    <div class="edu-note">
+      <span class="tp-label">Why this screen exists</span>
+      Radical AI's own <a href="https://www.radical-ai.com/antimatter" target="_blank" rel="noopener">Antimatter page</a> describes a four-stage loop &mdash; Predict, Optimize, Experiment, Feedback &mdash; combining atomistic simulation, active learning, and literature review to go from a target property to synthesizable candidates. This console is a plausible front end for that loop; the specific screens, fields, and copy are invented.
+    </div>
+
+    <section class="block">
+      <h2>Persona</h2>
+      <div class="persona">
+        <div class="avatar">PN</div>
+        <div class="who">
+          <div class="name">Priya Nair</div>
+          <div class="role">Applications Engineer, power-electronics manufacturer (Antimatter customer)</div>
+        </div>
+        <div class="facts">
+          <div><h4>Goal</h4><p>Find a gallium-nitride (GaN) alloy variant with a specific bandgap and thermal-conductivity target for a new power module &mdash; without waiting on a university collaboration or an 18-month internal R&amp;D cycle.</p></div>
+          <div><h4>Problem</h4><p>The compositional search space for doped GaN alloys is far larger than her team can screen with in-house DFT simulation, and she has no way to prioritize which candidates are worth a physical synthesis run.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>The numbers this screen is built around</h2>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="val tabular">10B &rarr; 100</div><div class="lbl">Composition downselect</div></div>
+        <div class="stat-tile"><div class="val tabular">100&times;</div><div class="lbl">Simulation speedup</div></div>
+        <div class="stat-tile"><div class="val tabular">370&times;</div><div class="lbl">Time-to-discovery gain</div></div>
+        <div class="stat-tile"><div class="val tabular">24 / 7</div><div class="lbl">Closed-loop operation</div></div>
+      </div>
+      <p class="lede" style="margin-top:-0.6rem">Figures as stated on <a href="https://www.radical-ai.com/antimatter" target="_blank" rel="noopener">radical-ai.com/antimatter</a>, which names gallium nitride (GaN) &mdash; used in LEDs, power electronics, lasers, and RF components &mdash; as a worked example.</p>
+    </section>
+
+    <section class="block">
+      <h2>Console</h2>
+      <p class="lede">Click through Priya's session, step by step.</p>
+
+      <nav class="journey">
+        <button data-step="predict" aria-current="step"><span class="idx">1</span>Predict</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="optimize"><span class="idx">2</span>Optimize</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="experiment"><span class="idx">3</span>Experiment</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="feedback"><span class="idx">4</span>Feedback</button>
+      </nav>
+
+      <div class="console">
+        <div class="console-titlebar">
+          <span class="traffic"><span></span><span></span><span></span></span>
+          <span class="name">antimatter &mdash; session #A-2291 &mdash; priya.nair@customer.example</span>
+        </div>
+        <div class="console-body">
+
+          <div class="step-panel active" data-step-panel="predict">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Priya specifies what the material needs to <button class="term" data-term="Property-driven / inverse design" data-def="Instead of picking a known compound and testing it, you specify the outcome you need (a bandgap, a strength, a cost ceiling) and let the model search compositions backwards from that target.">do</button>, not what it should be made of.</p>
+            <div class="field">
+              <label>Target bandgap (eV)</label>
+              <div class="row"><input type="range" id="bandgap" min="2.5" max="4.0" step="0.05" value="3.3" /><span class="readout" id="bandgapVal">3.30</span></div>
+            </div>
+            <div class="field">
+              <label>Min thermal conductivity (W/m&middot;K)</label>
+              <div class="row"><input type="range" id="thermal" min="80" max="260" step="5" value="180" /><span class="readout" id="thermalVal">180</span></div>
+            </div>
+            <div class="field">
+              <label>Cost ceiling (relative to baseline GaN)</label>
+              <div class="row"><input type="range" id="cost" min="1.0" max="2.5" step="0.05" value="1.4" /><span class="readout" id="costVal">1.40&times;</span></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="runScreen">Run screen &rarr;</button>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="optimize">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Antimatter narrows ~10 billion candidate compositions to a short list, using <button class="term" data-term="Active learning" data-def="A strategy for choosing which candidate to evaluate next based on what will most reduce the model's uncertainty, rather than evaluating everything or picking randomly.">active learning</button> and atomistic simulation instead of brute force.</p>
+            <div class="funnel">
+              <div class="bar-row"><span class="bar-label">Compositions</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val tabular">10,000,000,000</span></div>
+              <div class="bar-row"><span class="bar-label">Simulated</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><span class="bar-val tabular">42,000,000</span></div>
+              <div class="bar-row"><span class="bar-label">Property match</span><div class="bar-track"><div class="bar-fill" style="width:9%"></div></div><span class="bar-val tabular">8,500</span></div>
+              <div class="bar-row"><span class="bar-label">Synthesizable</span><div class="bar-track"><div class="bar-fill" style="width:2%"></div></div><span class="bar-val tabular">100</span></div>
+            </div>
+
+            <div class="field">
+              <label>Explore &harr; exploit balance for this screen</label>
+              <div class="row"><input type="range" id="eeSlider" min="0" max="100" value="70" /><span class="readout" id="eeVal">70% exploit</span></div>
+            </div>
+            <div class="ee-split">
+              <div class="exploit" id="exploitBar" style="width:70%"></div>
+              <div class="explore" id="exploreBar" style="width:30%"></div>
+            </div>
+            <div class="ee-legend">
+              <span class="exploit-lbl">Exploit &mdash; near known-good dopant families</span>
+              <span class="explore-lbl">Explore &mdash; novel, higher-risk chemistries</span>
+            </div>
+            <div class="edu-note">
+              <span class="tp-label">Explore vs. exploit</span>
+              Push this toward "explore" and Antimatter spends more of its shortlist on compositions further from anything it has data on &mdash; more likely to fail, but where genuine breakthroughs live. Radical AI's founders have described deliberately biasing toward this kind of <button class="term" data-term="Out-of-distribution discovery" data-def="A result unlike anything in the training data. Interpolating known chemistry is comparatively easy for ML; finding something genuinely novel — out-of-distribution — is the harder and more valuable case, per Radical AI's founder interviews.">out-of-distribution</button> search rather than only interpolating known chemistry, because that's where breakthrough materials tend to hide.
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="experiment">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">The top candidates, ranked, ready to hand to the physical lab.</p>
+            <div class="tbl-wrap">
+              <table class="data">
+                <thead><tr><th>Candidate</th><th>Predicted bandgap</th><th>Thermal k</th><th>Confidence</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">Ga(0.91)Al(0.09)N</td><td class="mono">3.31 eV</td><td class="mono">192 W/m&middot;K</td><td class="mono">0.88</td><td><span class="pill ok">queued</span></td></tr>
+                  <tr><td class="mono">Ga(0.88)Sc(0.05)Al(0.07)N</td><td class="mono">3.29 eV</td><td class="mono">201 W/m&middot;K</td><td class="mono">0.81</td><td><span class="pill ok">queued</span></td></tr>
+                  <tr><td class="mono">Ga(0.95)In(0.05)N</td><td class="mono">3.34 eV</td><td class="mono">176 W/m&middot;K</td><td class="mono">0.74</td><td><span class="pill warn">borderline</span></td></tr>
+                  <tr><td class="mono">Ga(0.83)Y(0.03)Al(0.14)N</td><td class="mono">3.27 eV</td><td class="mono">211 W/m&middot;K</td><td class="mono">0.62</td><td><span class="pill">exploratory</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="btn-row">
+              <button class="btn phys" id="sendToLab">Send top 2 to Autonomous Lab &rarr;</button>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="feedback">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Six days later, the lab reports back on <span class="mono">Ga(0.91)Al(0.09)N</span>. The measured bandgap becomes training data.</p>
+            <div class="confidence-compare">
+              <div class="box"><h4>Before this result</h4><div class="conf-bar-track"><div class="conf-bar-fill" style="width:63%"></div></div><div class="conf-val tabular">63% confidence</div></div>
+              <div class="box"><h4>After this result</h4><div class="conf-bar-track"><div class="conf-bar-fill" style="width:91%"></div></div><div class="conf-val tabular">91% confidence</div></div>
+            </div>
+            <div class="callout insight">
+              <span class="label">Feedback loop</span>
+              <p>This is the "compounding" part of what Radical AI calls the materials flywheel: every physical measurement doesn't just answer one question, it re-shapes Antimatter's confidence across the whole neighboring composition space &mdash; which is what makes the 100th experiment cheaper to choose well than the 1st.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The story this screen is solving</h2>
+      <div class="callout story">
+        <span class="label">Realistic scenario</span>
+        <p>Priya's team needs a GaN variant that survives higher junction temperatures without giving up switching efficiency &mdash; the kind of incremental-sounding spec that's actually gated by a search space too large to hand-simulate. Historically this is a multi-year materials program: pick a handful of candidate dopants by intuition, DFT-simulate each one for weeks, synthesize the best guess, and hope. Antimatter compresses the "which candidates are even worth trying" decision from months of simulation to a single afternoon session, then hands off exactly two synthesis-ready candidates instead of twenty maybes &mdash; which is also what makes the Autonomous Lab's 25-alloys-a-day throughput (see console 02) actually useful instead of overwhelmed with noise.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Sources</h2>
+      <div class="sources">
+        <span class="cite"><a href="https://www.radical-ai.com/antimatter" target="_blank" rel="noopener">Antimatter product page</a> &mdash; loop stages, GaN example, all four headline metrics</span>
+        <span class="cite"><a href="https://www.cognitiverevolution.ai/material-abundance-radical-ais-closed-loop-lab-automates-scientific-discovery/" target="_blank" rel="noopener">Cognitive Revolution podcast</a> &mdash; explore/exploit and out-of-distribution framing</span>
+      </div>
+    </section>
+
+    <footer class="foot">Console 01 of 5 &mdash; Antimatter (Design). <a href="../index.html">Back to all consoles</a></footer>
+  </div>
+
+  <script src="../assets/app.js" defer></script>
+  <script>
+    (function () {
+      function bindRange(id, valId, fmt) {
+        var el = document.getElementById(id), out = document.getElementById(valId);
+        if (!el || !out) return;
+        var update = function () { out.textContent = fmt(el.value); };
+        el.addEventListener("input", update);
+        update();
+      }
+      bindRange("bandgap", "bandgapVal", function (v) { return parseFloat(v).toFixed(2); });
+      bindRange("thermal", "thermalVal", function (v) { return v; });
+      bindRange("cost", "costVal", function (v) { return parseFloat(v).toFixed(2) + "×"; });
+
+      var ee = document.getElementById("eeSlider");
+      var eeVal = document.getElementById("eeVal");
+      var exploit = document.getElementById("exploitBar");
+      var explore = document.getElementById("exploreBar");
+      function updateEE() {
+        var v = ee.value;
+        eeVal.textContent = v + "% exploit";
+        exploit.style.width = v + "%";
+        explore.style.width = (100 - v) + "%";
+      }
+      if (ee) { ee.addEventListener("input", updateEE); updateEE(); }
+
+      var runBtn = document.getElementById("runScreen");
+      if (runBtn) runBtn.addEventListener("click", function () {
+        window.RadicalUI.toast("Screen queued — 10,000,000,000 compositions submitted");
+        var nav = document.querySelector(".journey");
+        window.RadicalUI.goToStep(nav, "optimize");
+      });
+
+      var sendBtn = document.getElementById("sendToLab");
+      if (sendBtn) sendBtn.addEventListener("click", function () {
+        window.RadicalUI.toast("2 candidates sent to Autonomous Lab queue");
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LitXBench Agent — Literature Extraction · Radical AI Prototypes</title>
+<link rel="stylesheet" href="../assets/styles.css" />
+<style>
+  .paper-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.8rem 0 1.1rem; }
+  .paper-list button {
+    text-align: left;
+    background: var(--bg-inset);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.7rem 0.9rem;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+  .paper-list button:hover { border-color: var(--rule-strong); }
+  .paper-list button[aria-pressed="true"] { border-color: var(--cyan-line); background: var(--cyan-soft); }
+  .paper-list .ptitle { font-size: 0.92rem; font-weight: 600; }
+  .paper-list .pmeta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); margin-top: 0.25rem; }
+
+  .code-block {
+    background: var(--bg-inset);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--ink-dim);
+  }
+  .code-block .k { color: var(--cyan); }
+  .code-block .s { color: var(--copper); }
+
+  .method-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .method-box { border-radius: var(--radius); padding: 1rem 1.1rem; border: 1px solid var(--rule); }
+  .method-box.legacy { background: var(--warn-soft); border-color: var(--warn); }
+  .method-box.frontier { background: var(--cyan-soft); border-color: var(--cyan-line); }
+  .method-box h4 { margin: 0 0 0.6rem; font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .method-box.legacy h4 { color: var(--warn); }
+  .method-box.frontier h4 { color: var(--cyan); }
+  .link-diagram { font-family: var(--font-mono); font-size: 0.82rem; margin-top: 0.6rem; }
+  .link-diagram .row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .link-diagram .box { border: 1px solid var(--rule-strong); border-radius: 3px; padding: 0.15rem 0.5rem; background: var(--bg-panel); }
+  .link-diagram .miss { opacity: 0.35; text-decoration: line-through; }
+
+  .f1-chart { display: flex; align-items: flex-end; gap: 1.5rem; height: 130px; margin: 1rem 0 0.4rem; }
+  .f1-chart .col { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; width: 90px; }
+  .f1-chart .bar { width: 46px; border-radius: 3px 3px 0 0; }
+  .f1-chart .bar.legacy { background: var(--warn); }
+  .f1-chart .bar.frontier { background: var(--cyan); }
+  .f1-chart .lbl { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim); text-align: center; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="../index.html">&larr; ALL CONSOLES</a>
+      <button class="learning-toggle" data-learning-toggle type="button"><span>Learning mode</span><span class="sw"></span></button>
+    </div>
+
+    <span class="eyebrow cyan">04 / Learn &mdash; LitXBench Agent</span>
+    <h1 class="page-title">Literature Extraction Agent</h1>
+    <p class="dek">Before Antimatter can predict a new alloy, it needs training data &mdash; and decades of it already exists, locked in published papers as prose and tables. This console turns a paper into structured, auditable measurements.</p>
+
+    <div class="edu-note">
+      <span class="tp-label">Why this screen exists</span>
+      This is the only console grounded in a peer-reviewed artifact rather than a marketing page: <a href="https://arxiv.org/abs/2604.07649" target="_blank" rel="noopener">LitXBench (Chong &amp; Colindres, arXiv:2604.07649)</a> introduces a benchmark and a 1,426-measurement dataset (LitXAlloy) from 19 alloy papers, and finds frontier LLMs beat existing extraction pipelines by up to 0.37 F1 &mdash; because those pipelines link measurements to compositions but not to the processing steps that actually define a material. Everything about the interaction design here is invented; the dataset facts and finding are direct from the paper.
+    </div>
+
+    <section class="block">
+      <h2>Persona</h2>
+      <div class="persona">
+        <div class="avatar">OR</div>
+        <div class="who">
+          <div class="name">Dr. Omar Reyes</div>
+          <div class="role">ML Research Scientist, Radical AI</div>
+        </div>
+        <div class="facts">
+          <div><h4>Goal</h4><p>Turn decades of published alloy research into structured training data for Antimatter, instead of starting every new material family from zero lab measurements.</p></div>
+          <div><h4>Problem</h4><p>Off-the-shelf extraction pipelines silently produce wrong data &mdash; they'll correctly pull "310 MPa yield strength" but attach it to the alloy's composition alone, dropping the fact that it only holds after a specific heat treatment. The error doesn't look like an error; it looks like a clean row in a spreadsheet.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>The numbers this screen is built around</h2>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="val tabular">1,426</div><div class="lbl">Measurements in LitXAlloy</div></div>
+        <div class="stat-tile"><div class="val tabular">19</div><div class="lbl">Source alloy papers</div></div>
+        <div class="stat-tile"><div class="val tabular">+0.37 F1</div><div class="lbl">Frontier LLM vs. legacy pipeline</div></div>
+        <div class="stat-tile"><div class="val tabular">Python obj.</div><div class="lbl">Storage format, not CSV/JSON</div></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Console</h2>
+      <nav class="journey">
+        <button data-step="ingest" aria-current="step"><span class="idx">1</span>Ingest</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="extract"><span class="idx">2</span>Extract</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="compare"><span class="idx">3</span>Compare methods</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="benchmark"><span class="idx">4</span>Benchmark</button>
+      </nav>
+
+      <div class="console">
+        <div class="console-titlebar">
+          <span class="traffic"><span></span><span></span><span></span></span>
+          <span class="name">litxbench-agent &mdash; ingestion queue</span>
+        </div>
+        <div class="console-body">
+
+          <div class="step-panel active" data-step-panel="ingest">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Illustrative paper queue &mdash; not real citations, standing in for the kind of source LitXAlloy was built from.</p>
+            <div class="paper-list">
+              <button data-paper="1" aria-pressed="true">
+                <div class="ptitle">Microstructure evolution in Al-Sc-Zr alloys under multi-stage aging</div>
+                <div class="pmeta">Illustrative example &middot; Materials Science &amp; Engineering A &middot; 14 tables, 3 synthesis routes</div>
+              </button>
+              <button data-paper="2" aria-pressed="false">
+                <div class="ptitle">High-entropy alloy strengthening via controlled dendrite refinement</div>
+                <div class="pmeta">Illustrative example &middot; Acta Materialia &middot; 9 tables, 2 synthesis routes</div>
+              </button>
+              <button data-paper="3" aria-pressed="false">
+                <div class="ptitle">Thermal stability of GaN-based wide-bandgap alloys</div>
+                <div class="pmeta">Illustrative example &middot; Journal of Applied Physics &middot; 6 tables, 1 synthesis route</div>
+              </button>
+            </div>
+            <div class="btn-row"><button class="btn" id="runExtract">Run extraction on selected paper &rarr;</button></div>
+          </div>
+
+          <div class="step-panel" data-step-panel="extract">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">One measurement, pulled out of prose and a table footnote, as a structured record.</p>
+            <div class="code-block"><span class="k">Measurement</span>(
+  composition=<span class="s">"Al-0.3Sc-0.15Zr"</span>,
+  property=<span class="s">"yield_strength"</span>,
+  value=<span class="k">310</span>, unit=<span class="s">"MPa"</span>,
+  processing=[
+    <span class="s">"solution treat 640C/1h"</span>,
+    <span class="s">"quench"</span>,
+    <span class="s">"age 325C/18h"</span>
+  ],
+  source_span=<span class="s">"Table 3, row 4; Sec. 2.2 para 3"</span>
+)</div>
+            <div class="edu-note">
+              <span class="tp-label">Why Python objects, not CSV/JSON</span>
+              LitXBench stores entries as Python objects specifically "to improve auditability and enable programmatic data validation" &mdash; you can write a unit test against a measurement record and catch a malformed extraction before it ever reaches a training set, which a loose CSV row can't give you.
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="compare">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">The paper's core finding, made concrete: the same sentence, extracted two ways.</p>
+            <div class="method-compare">
+              <div class="method-box legacy">
+                <h4>Legacy multi-turn pipeline</h4>
+                <div class="link-diagram">
+                  <div class="row"><span class="box">310 MPa</span>&rarr;<span class="box">Al-0.3Sc-0.15Zr</span></div>
+                  <div class="row miss"><span class="box">age 325&deg;C/18h</span></div>
+                </div>
+                <p style="font-size:0.83rem; margin-top:0.6rem">Correctly finds the number and the alloy. Drops the aging step &mdash; so the record silently implies 310 MPa is an as-cast property. It isn't.</p>
+              </div>
+              <div class="method-box frontier">
+                <h4>Frontier LLM (Gemini 3.1 Pro Preview)</h4>
+                <div class="link-diagram">
+                  <div class="row"><span class="box">310 MPa</span>&rarr;<span class="box">Al-0.3Sc-0.15Zr</span>&rarr;<span class="box">age 325&deg;C/18h</span></div>
+                </div>
+                <p style="font-size:0.83rem; margin-top:0.6rem">Links the measurement to composition <em>and</em> the processing step that produced it &mdash; the paper's stated reason frontier models pull ahead on this task.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="benchmark">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Aggregated across all 1,426 measurements in LitXAlloy.</p>
+            <div class="f1-chart">
+              <div class="col"><div class="bar legacy" style="height:64px"></div><span class="lbl">Legacy<br/>pipeline</span></div>
+              <div class="col"><div class="bar frontier" style="height:100px"></div><span class="lbl">Frontier LLM<br/>(+0.37 F1)</span></div>
+            </div>
+            <p style="font-size:0.78rem; color:var(--ink-faint)">Bar heights are illustrative (no absolute F1 values are published); the +0.37 F1 gap between them is the paper's actual reported result.</p>
+            <div class="callout insight">
+              <span class="label">Why this feeds Antimatter</span>
+              <p>Every correctly-linked measurement here is a training example Antimatter's prediction engine can use without ever running a physical experiment. Getting the extraction wrong doesn't just lose data &mdash; per the paper's own framing, it actively teaches the model a false correlation between composition and property, silently, at scale.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The story this screen is solving</h2>
+      <div class="callout story">
+        <span class="label">Realistic scenario</span>
+        <p>Omar's team wants to expand Antimatter into a new alloy family it has no lab data for yet. Running physical experiments to bootstrap that family from scratch would take months on the Autonomous Lab (console 02). Instead, Omar points the extraction agent at the existing published literature for that family overnight. The catch, and the entire reason LitXBench exists as a research artifact: a naive extraction pipeline would hand Antimatter thousands of confidently-wrong training rows, each one looking exactly as valid as a correct one &mdash; a mistake that wouldn't surface until Antimatter started recommending compositions that don't behave the way the (mislabeled) literature said they would.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Sources</h2>
+      <div class="sources">
+        <span class="cite"><a href="https://arxiv.org/abs/2604.07649" target="_blank" rel="noopener">LitXBench paper</a> &mdash; abstract, dataset stats, F1 finding, Python-object storage rationale</span>
+        <span class="cite"><a href="https://github.com/Radical-AI/litxbench" target="_blank" rel="noopener">LitXBench GitHub</a> &mdash; code and documentation</span>
+        <span class="cite"><a href="https://www.radical-ai.com/news/litxbench-a-benchmark-for-extracting-experiments-from-materials-literature" target="_blank" rel="noopener">Radical AI's own post</a> &mdash; company framing of the benchmark</span>
+      </div>
+    </section>
+
+    <footer class="foot">Console 04 of 5 &mdash; LitXBench Agent (Learn). <a href="../index.html">Back to all consoles</a></footer>
+  </div>
+
+  <script src="../assets/app.js" defer></script>
+  <script>
+    (function () {
+      var papers = document.querySelectorAll(".paper-list button");
+      papers.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          papers.forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+          btn.setAttribute("aria-pressed", "true");
+        });
+      });
+      document.getElementById("runExtract").addEventListener("click", function () {
+        window.RadicalUI.toast("Extraction complete — 14 measurements structured");
+        window.RadicalUI.goToStep(document.querySelector(".journey"), "extract");
+      });
+    })();
+  </script>
+</body>
+</html>

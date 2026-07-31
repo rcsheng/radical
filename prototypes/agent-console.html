@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Autonomy Console · Radical AI Prototypes</title>
+<link rel="stylesheet" href="../assets/styles.css" />
+<style>
+  .action-list { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.8rem 0 1rem; }
+  .action {
+    background: var(--bg-inset);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+  }
+  .action .arow { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; flex-wrap: wrap; }
+  .action .atext { font-size: 0.92rem; }
+  .action .atext .target { color: var(--ink-dim); font-family: var(--font-mono); font-size: 0.78rem; display: block; margin-top: 0.2rem; }
+  .action .abtns { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .action .abtns button { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; }
+  .action .abtns .approve { background: var(--ok-soft); border: 1px solid rgba(82,199,122,0.4); color: var(--ok); }
+  .action .abtns .reject { background: var(--crit-soft); border: 1px solid rgba(224,97,79,0.4); color: var(--crit); }
+  .action .abtns .trace { background: var(--cyan-soft); border: 1px solid var(--cyan-line); color: var(--cyan); }
+  .action .abtns button[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+  .stage-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-faint); margin-top: 0.3rem; }
+  .stage-labels .active { color: var(--cyan); }
+
+  .trace-block { background: var(--bg-inset); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.1rem; margin: 0.8rem 0; }
+  .trace-block .step { display: flex; gap: 0.7rem; padding: 0.4rem 0; border-bottom: 1px dotted var(--rule); font-size: 0.86rem; }
+  .trace-block .step:last-child { border-bottom: none; }
+  .trace-block .step .n { font-family: var(--font-mono); color: var(--cyan); flex-shrink: 0; }
+
+  .log-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+  .log-item { display: flex; gap: 0.8rem; align-items: baseline; font-size: 0.85rem; border-bottom: 1px dotted var(--rule); padding-bottom: 0.5rem; }
+  .log-item .t { font-family: var(--font-mono); color: var(--ink-faint); font-size: 0.72rem; flex-shrink: 0; width: 5.5em; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="../index.html">&larr; ALL CONSOLES</a>
+      <button class="learning-toggle" data-learning-toggle type="button"><span>Learning mode</span><span class="sw"></span></button>
+    </div>
+
+    <span class="eyebrow cyan">05 / Iterate &mdash; Agent Autonomy Console</span>
+    <h1 class="page-title">Agent Autonomy Console</h1>
+    <p class="dek">Every earlier console (01&ndash;04) has an agent quietly making decisions underneath it. This is the surface where a human decides how much rope each kind of decision gets.</p>
+
+    <div class="callout caution">
+      <span class="label">Most speculative console in this set</span>
+      <p>Radical AI hasn't published a page describing this screen. It's inferred from co-founder Jorge Colindres' own stated philosophy &mdash; wanting mechanistic interpretability because "solving big hard problems requires knowing which way models are going," and explicitly not wanting the agent to be a black box &mdash; plus the fact that Antimatter's "Optimize" stage already combines active learning, adaptive experimentation, and literature review into one agentic loop that has to touch real lab equipment. This console is also, not coincidentally, close to what the Radical AI Product Manager job req calls "agent capabilities: tool access and reasoning design" &mdash; it's a plausible sketch of a surface that role would own.</p>
+    </div>
+
+    <section class="block">
+      <h2>Persona</h2>
+      <div class="persona">
+        <div class="avatar">SK</div>
+        <div class="who">
+          <div class="name">Dr. Sarah Kim</div>
+          <div class="role">Senior Materials Scientist, human-in-the-loop approver</div>
+        </div>
+        <div class="facts">
+          <div><h4>Goal</h4><p>Let the agent handle routine lab decisions at machine speed, while staying the actual authority on anything expensive, irreversible, or compliance-sensitive.</p></div>
+          <div><h4>Problem</h4><p>If she has to approve every agent action, the lab runs at human speed and the whole point of automation is lost. If she approves nothing, she's back to babysitting robots. She needs the threshold to be adjustable, visible, and different per action type &mdash; not one global on/off switch.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Console</h2>
+      <nav class="journey">
+        <button data-step="feed" aria-current="step"><span class="idx">1</span>Action feed</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="trace"><span class="idx">2</span>Reasoning trace</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="threshold"><span class="idx">3</span>Autonomy threshold</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="log"><span class="idx">4</span>Decision log</button>
+      </nav>
+
+      <div class="console">
+        <div class="console-titlebar">
+          <span class="traffic"><span></span><span></span><span></span></span>
+          <span class="name">agent-console &mdash; live queue</span>
+        </div>
+        <div class="console-body">
+
+          <div class="step-panel active" data-step-panel="feed">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">What the agent wants to do next, and whether it needs a human first.</p>
+            <div class="action-list" id="actionList"></div>
+          </div>
+
+          <div class="step-panel" data-step-panel="trace">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0" id="traceIntro">Select "View reasoning" on an action in the feed first.</p>
+            <div id="traceContent" style="display:none">
+              <div class="field row" style="margin-bottom:0.8rem">
+                <label style="margin:0">View:</label>
+                <div class="btn-row" style="margin-top:0">
+                  <button class="btn ghost" id="btnInterpretable" aria-pressed="true">Interpretable</button>
+                  <button class="btn ghost" id="btnBlackbox" aria-pressed="false">Black box</button>
+                </div>
+              </div>
+              <div class="trace-block" id="interpretableView"></div>
+              <div class="trace-block" id="blackboxView" style="display:none">
+                <p style="margin:0; color:var(--ink-faint); font-family:var(--font-mono); font-size:0.86rem">action: queue_synthesis_job<br/>confidence: 0.88<br/>&mdash; no further detail available &mdash;</p>
+              </div>
+              <div class="edu-note">
+                <span class="tp-label">Interpretable vs. black box</span>
+                A confidence score alone tells Sarah <em>that</em> the agent is fairly sure, not <em>why</em>. The interpretable view shows the actual tool calls and data considered &mdash; the difference between "trust me" and "here's my work," which is the distinction Radical AI's founders have pointed to directly when explaining why they invest in mechanistic interpretability rather than treating the model as a black box.
+              </div>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="threshold">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">One dial, four stages. Some actions ignore it entirely.</p>
+            <div class="field">
+              <label>Autonomy level &mdash; routine synthesis &amp; characterization actions</label>
+              <input type="range" id="autonomySlider" min="0" max="100" value="35" />
+              <div class="stage-labels">
+                <span data-stage="0">Shadow</span>
+                <span data-stage="1">Suggest</span>
+                <span data-stage="2">Approve-required</span>
+                <span data-stage="3">Autonomous</span>
+              </div>
+            </div>
+            <div class="callout insight" id="stageExplain">
+              <span class="label">Suggest</span>
+              <p>The agent proposes the action and drafts everything needed to execute it, but nothing happens until Sarah clicks approve. Go back to the Action feed tab to see this reflected live.</p>
+            </div>
+            <div class="callout caution">
+              <span class="label">Hard-gated regardless of this slider</span>
+              <p>Anything touching restricted precursors or compliance flags &mdash; like the escalation in the action feed &mdash; always requires human review. That's a deliberate design choice, not a threshold setting: some categories of decision don't get a dial at all.</p>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="log">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Every human decision on an agent action, kept &mdash; the audit trail this whole console exists to produce.</p>
+            <div class="log-list" id="logList"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The story this screen is solving</h2>
+      <div class="callout story">
+        <span class="label">Realistic scenario</span>
+        <p>Six weeks after autonomy is dialed up on routine synthesis jobs, a customer audit asks Radical AI to demonstrate exactly how a specific batch of alloy compositions was chosen and approved &mdash; standard diligence for a defense-adjacent customer. Because every agent action here has a reasoning trace and every human decision is logged with a timestamp, that's a query, not a forensic reconstruction. This is also the version of the trust problem that scales past materials science: it's the same shape as approving an AI agent to send a message on a customer's behalf, or to change a payroll record &mdash; different stakes, same underlying product decision about where the human sits in the loop.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Sources</h2>
+      <div class="sources">
+        <span class="cite"><a href="https://www.cognitiverevolution.ai/material-abundance-radical-ais-closed-loop-lab-automates-scientific-discovery/" target="_blank" rel="noopener">Cognitive Revolution podcast</a> &mdash; interpretability &amp; "not a black box" framing, direct from Radical AI's founders</span>
+        <span class="cite"><a href="https://www.radical-ai.com/antimatter" target="_blank" rel="noopener">Antimatter product page</a> &mdash; agentic "Optimize" stage this console sits underneath</span>
+      </div>
+    </section>
+
+    <footer class="foot">Console 05 of 5 &mdash; Agent Autonomy Console (Iterate). <a href="../index.html">Back to all consoles</a></footer>
+  </div>
+
+  <script src="../assets/app.js" defer></script>
+  <script>
+    (function () {
+      var STAGES = ["Shadow", "Suggest", "Approve-required", "Autonomous"];
+      var STAGE_TEXT = [
+        "The agent logs what it would have done, but never touches real equipment. Purely observational — used to build trust before granting any real authority.",
+        "The agent proposes the action and drafts everything needed to execute it, but nothing happens until a human clicks approve. Go back to the Action feed tab to see this reflected live.",
+        "The agent executes automatically, but only after a lightweight approval gate — useful once a category has a long track record but you still want a checkpoint.",
+        "The agent executes immediately and logs the decision after the fact. Reserved for the lowest-risk, highest-volume action types once confidence is well established."
+      ];
+
+      var actions = [
+        {
+          id: 1,
+          text: "Queue synthesis job: Fe-Cr-Ni-Al-Co-Y at Station 3",
+          target: "Source: Antimatter screen #A-2140 · confidence 0.88",
+          category: "routine",
+          status: "pending",
+          trace: [
+            "Queried Antimatter screening result #A-2140 for top unqueued candidate",
+            "Checked Station 3 availability and precursor inventory — both sufficient",
+            "Compared composition against 6 prior successful runs in same alloy family",
+            "Drafted synthesis job with default parameters from nearest matched run"
+          ]
+        },
+        {
+          id: 2,
+          text: "Flag SEM batch #482 for re-characterization",
+          target: "Segmentation confidence 0.61 — below 0.85 auto-accept threshold",
+          category: "routine",
+          status: "pending",
+          trace: [
+            "Ran segmentation model on batch #482, 40 images",
+            "Mean confidence 0.61, three images below 0.50",
+            "Compared to batch's own historical average confidence (0.92) — significant drop",
+            "Concluded: likely imaging artifact, not a genuine microstructure. Recommends re-imaging over re-measuring."
+          ]
+        },
+        {
+          id: 3,
+          text: "Escalate: candidate matches restricted precursor list",
+          target: "Ga(0.70)In(0.30)N — requires compliance review",
+          category: "compliance",
+          status: "pending",
+          trace: [
+            "Cross-checked proposed composition against export-control precursor list",
+            "Matched indium concentration threshold for restricted-use flag",
+            "Did not proceed to synthesis queue — routed directly to compliance, bypassing autonomy setting entirely"
+          ]
+        }
+      ];
+      var log = [
+        { t: "09:14", text: "Approved: queue synthesis job Ga(0.91)Al(0.09)N at Station 1", who: "S. Kim" },
+        { t: "08:52", text: "Rejected: auto-reorder precursor (insufficient budget headroom)", who: "S. Kim" }
+      ];
+      var selectedTraceId = null;
+      var autonomyValue = 35;
+
+      function stageIndex(v) {
+        if (v < 25) return 0;
+        if (v < 50) return 1;
+        if (v < 75) return 2;
+        return 3;
+      }
+
+      function computedStatus(action) {
+        if (action.category === "compliance") return "review";
+        if (action.status !== "pending") return action.status;
+        var stage = stageIndex(autonomyValue);
+        if (stage === 0) return "shadow";
+        if (stage === 1) return "review";
+        if (stage === 2) return "review";
+        return "auto";
+      }
+
+      function pillFor(status) {
+        if (status === "auto") return ["ok", "auto-executed"];
+        if (status === "shadow") return ["", "shadow — logged only"];
+        if (status === "approved") return ["ok", "approved"];
+        if (status === "rejected") return ["crit", "rejected"];
+        return ["warn", "needs approval"];
+      }
+
+      function renderActions() {
+        var list = document.getElementById("actionList");
+        list.innerHTML = "";
+        actions.forEach(function (action) {
+          var status = computedStatus(action);
+          var pill = pillFor(status);
+          var needsApproval = status === "review";
+          var div = document.createElement("div");
+          div.className = "action";
+          div.innerHTML =
+            "<div class=\"arow\">" +
+              "<div class=\"atext\">" + action.text + "<span class=\"target\">" + action.target + "</span></div>" +
+              "<span class=\"pill " + pill[0] + "\">" + pill[1] + "</span>" +
+            "</div>" +
+            "<div class=\"abtns\" style=\"margin-top:0.6rem\">" +
+              "<button class=\"trace\" data-trace=\"" + action.id + "\">View reasoning</button>" +
+              "<button class=\"approve\" data-approve=\"" + action.id + "\"" + (needsApproval ? "" : " disabled") + ">Approve</button>" +
+              "<button class=\"reject\" data-reject=\"" + action.id + "\"" + (needsApproval ? "" : " disabled") + ">Reject</button>" +
+            "</div>";
+          list.appendChild(div);
+        });
+
+        list.querySelectorAll("[data-trace]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            selectedTraceId = parseInt(btn.getAttribute("data-trace"), 10);
+            renderTrace();
+            window.RadicalUI.goToStep(document.querySelector(".journey"), "trace");
+          });
+        });
+        list.querySelectorAll("[data-approve]").forEach(function (btn) {
+          btn.addEventListener("click", function () { decide(parseInt(btn.getAttribute("data-approve"), 10), "approved"); });
+        });
+        list.querySelectorAll("[data-reject]").forEach(function (btn) {
+          btn.addEventListener("click", function () { decide(parseInt(btn.getAttribute("data-reject"), 10), "rejected"); });
+        });
+      }
+
+      function decide(id, decision) {
+        var action = actions.filter(function (a) { return a.id === id; })[0];
+        if (!action) return;
+        action.status = decision;
+        var now = new Date();
+        var hh = ("0" + now.getHours()).slice(-2);
+        var mm = ("0" + now.getMinutes()).slice(-2);
+        log.unshift({ t: hh + ":" + mm, text: (decision === "approved" ? "Approved" : "Rejected") + ": " + action.text, who: "S. Kim" });
+        renderActions();
+        renderLog();
+        window.RadicalUI.toast(decision === "approved" ? "Action approved and logged" : "Action rejected and logged");
+      }
+
+      function renderTrace() {
+        var intro = document.getElementById("traceIntro");
+        var content = document.getElementById("traceContent");
+        if (!selectedTraceId) { intro.style.display = "block"; content.style.display = "none"; return; }
+        var action = actions.filter(function (a) { return a.id === selectedTraceId; })[0];
+        intro.style.display = "none";
+        content.style.display = "block";
+        var view = document.getElementById("interpretableView");
+        view.innerHTML = "<p style=\"margin:0 0 0.6rem; font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.05em\">" + action.text + "</p>" +
+          action.trace.map(function (step, i) {
+            return "<div class=\"step\"><span class=\"n\">" + (i + 1) + "</span><span>" + step + "</span></div>";
+          }).join("");
+      }
+
+      document.getElementById("btnInterpretable").addEventListener("click", function () {
+        document.getElementById("interpretableView").style.display = "block";
+        document.getElementById("blackboxView").style.display = "none";
+        this.setAttribute("aria-pressed", "true");
+        document.getElementById("btnBlackbox").setAttribute("aria-pressed", "false");
+      });
+      document.getElementById("btnBlackbox").addEventListener("click", function () {
+        document.getElementById("interpretableView").style.display = "none";
+        document.getElementById("blackboxView").style.display = "block";
+        this.setAttribute("aria-pressed", "true");
+        document.getElementById("btnInterpretable").setAttribute("aria-pressed", "false");
+      });
+
+      function renderLog() {
+        var el = document.getElementById("logList");
+        el.innerHTML = log.map(function (entry) {
+          return "<div class=\"log-item\"><span class=\"t\">" + entry.t + "</span><span>" + entry.text + " <span style=\"color:var(--ink-faint)\">&mdash; " + entry.who + "</span></span></div>";
+        }).join("");
+      }
+
+      var slider = document.getElementById("autonomySlider");
+      var stageExplain = document.getElementById("stageExplain");
+      function renderThreshold() {
+        var stage = stageIndex(parseInt(slider.value, 10));
+        document.querySelectorAll(".stage-labels span").forEach(function (s, i) {
+          s.classList.toggle("active", i === stage);
+        });
+        stageExplain.querySelector(".label").textContent = STAGES[stage];
+        stageExplain.querySelector("p").textContent = STAGE_TEXT[stage];
+      }
+      slider.addEventListener("input", function () {
+        autonomyValue = parseInt(slider.value, 10);
+        renderThreshold();
+        renderActions();
+      });
+
+      renderActions();
+      renderTrace();
+      renderLog();
+      renderThreshold();
+    })();
+  </script>
+</body>
+</html>

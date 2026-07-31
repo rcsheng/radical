@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Autonomous Lab — Run Queue · Radical AI Prototypes</title>
+<link rel="stylesheet" href="../assets/styles.css" />
+<style>
+  .trail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.9rem; margin: 1rem 0; }
+  .trail-box { background: var(--bg-inset); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.8rem 0.9rem; }
+  .trail-box h4 { margin: 0 0 0.5rem; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+  .trail-box .kv { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.2rem 0; border-bottom: 1px dotted var(--rule); }
+  .trail-box .kv:last-child { border-bottom: none; }
+  .trail-box .kv .k { color: var(--ink-dim); }
+  .trail-box .kv .v { font-family: var(--font-mono); color: var(--ink); }
+
+  .throughput { display: flex; align-items: baseline; gap: 0.8rem; margin: 0.6rem 0 1rem; }
+  .throughput .big { font-family: var(--font-mono); font-size: 2.4rem; font-weight: 700; color: var(--copper); }
+  .throughput .of { color: var(--ink-faint); font-family: var(--font-mono); }
+  .gauge-track { height: 10px; background: var(--bg-inset); border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; }
+  .gauge-fill { height: 100%; background: linear-gradient(90deg, var(--copper-soft), var(--copper)); transition: width 0.3s; }
+
+  table.data tr[data-job] { cursor: pointer; }
+  table.data tr[data-job]:hover { background: rgba(255,255,255,0.02); }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="../index.html">&larr; ALL CONSOLES</a>
+      <button class="learning-toggle" data-learning-toggle type="button"><span>Learning mode</span><span class="sw"></span></button>
+    </div>
+
+    <span class="eyebrow copper">02 / Synthesize &mdash; Autonomous Lab</span>
+    <h1 class="page-title">Live Run Queue &amp; Digital Lab Notebook</h1>
+    <p class="dek">The candidates Antimatter shortlisted (console 01) become physical synthesis jobs. This is the shift-facing view of the robotic lab actually running them.</p>
+
+    <div class="edu-note">
+      <span class="tp-label">Why this screen exists</span>
+      Radical AI's <a href="https://www.radical-ai.com/autonomous-lab" target="_blank" rel="noopener">Autonomous Lab page</a> states the lab can "create and characterize 25+ alloys in one day," that each sample keeps "a complete digital trail: from synthesis parameters and annotations to characterization outputs," and that candidate selection aims to "maximize value per run, exploiting what looks most promising now while exploring new chemistries." This console makes those three claims operable as a dashboard; the exact UI is invented.
+    </div>
+
+    <section class="block">
+      <h2>Persona</h2>
+      <div class="persona">
+        <div class="avatar">MW</div>
+        <div class="who">
+          <div class="name">Marcus Webb</div>
+          <div class="role">Autonomous Lab Operations Lead, Radical AI</div>
+        </div>
+        <div class="facts">
+          <div><h4>Goal</h4><p>Keep four synthesis stations running near-continuously without personally supervising every step &mdash; intervene only on real exceptions, not routine progress.</p></div>
+          <div><h4>Problem</h4><p>If a result can't be reproduced later, he needs to know exactly why within minutes, not by reconstructing a paper lab notebook &mdash; the failure mode that famously sank the 2023 room-temperature-superconductor (LK-99) claim, where missing synthesis detail made replication impossible.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Today's shift</h2>
+      <div class="throughput">
+        <span class="big tabular" id="throughputCount">14</span>
+        <span class="of">/ 25+ alloys &middot; target throughput per <a href="https://www.radical-ai.com/autonomous-lab" target="_blank" rel="noopener">Radical AI's own claim</a></span>
+      </div>
+      <div class="gauge-track"><div class="gauge-fill" id="throughputGauge" style="width:56%"></div></div>
+    </section>
+
+    <section class="block">
+      <h2>Console</h2>
+      <nav class="journey">
+        <button data-step="queue" aria-current="step"><span class="idx">1</span>Run queue</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="trail"><span class="idx">2</span>Digital trail</button>
+        <span class="arrow">&rarr;</span>
+        <button data-step="allocation"><span class="idx">3</span>Allocation</button>
+      </nav>
+
+      <div class="console">
+        <div class="console-titlebar">
+          <span class="traffic"><span></span><span></span><span></span></span>
+          <span class="name">autonomous-lab &mdash; floor view &mdash; shift 07:00&ndash;19:00</span>
+        </div>
+        <div class="console-body">
+
+          <div class="step-panel active" data-step-panel="queue">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Four stations, four jobs. Click a row to inspect it, or advance the shift clock.</p>
+            <div class="tbl-wrap">
+              <table class="data" id="queueTable">
+                <thead><tr><th>Station</th><th>Composition</th><th>Source</th><th>Status</th></tr></thead>
+                <tbody id="queueBody"></tbody>
+              </table>
+            </div>
+            <div class="btn-row">
+              <button class="btn phys" id="advanceBtn">Advance shift +1hr &rarr;</button>
+              <button class="btn ghost" id="viewTrailBtn" disabled>View digital trail for selected &rarr;</button>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="trail">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0" id="trailIntro">Select a job on the Run queue tab to inspect its trail.</p>
+            <div class="trail-grid" id="trailGrid" style="display:none">
+              <div class="trail-box">
+                <h4>Synthesis parameters</h4>
+                <div class="kv"><span class="k">Peak temp</span><span class="v" id="tp-temp">1180&deg;C</span></div>
+                <div class="kv"><span class="k">Atmosphere</span><span class="v" id="tp-atm">Ar, O&lt;50ppm</span></div>
+                <div class="kv"><span class="k">Ramp rate</span><span class="v" id="tp-ramp">8&deg;C/min</span></div>
+                <div class="kv"><span class="k">Hold time</span><span class="v" id="tp-hold">4h 20m</span></div>
+                <div class="kv"><span class="k">Container</span><span class="v" id="tp-container">Alumina crucible, lot 0417</span></div>
+              </div>
+              <div class="trail-box">
+                <h4>Robot annotations</h4>
+                <div class="kv"><span class="k">Dispense variance</span><span class="v" id="tp-dispense">0.3%</span></div>
+                <div class="kv"><span class="k">Anomaly flags</span><span class="v" id="tp-anomaly">none</span></div>
+                <div class="kv"><span class="k">Operator override</span><span class="v" id="tp-override">none</span></div>
+              </div>
+              <div class="trail-box">
+                <h4>Characterization output</h4>
+                <div class="kv"><span class="k">XRD phase match</span><span class="v" id="tp-xrd">single-phase</span></div>
+                <div class="kv"><span class="k">SDAS (console 03)</span><span class="v" id="tp-sdas">18.4&micro;m</span></div>
+                <div class="kv"><span class="k">Fed back to Antimatter</span><span class="v" id="tp-fedback">yes, 14:02</span></div>
+              </div>
+            </div>
+            <div class="callout insight" id="trailNote" style="display:none">
+              <span class="label">Why the full trail matters</span>
+              <p>"When every measurement follows the same method, comparisons across samples are meaningful in a way they aren't when manual measurements carry operator-to-operator variance" &mdash; from Radical AI's own account of standardizing characterization. The same logic extends upstream: capturing exact ramp rate and container lot, not just "annealed it," is what makes a result reproducible six months later.</p>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step-panel="allocation">
+            <p style="color:var(--ink-dim); font-size:0.9rem; margin-top:0">Station 3 is free in nine minutes. What should it run next?</p>
+            <div class="field">
+              <label>Allocation for the next open station</label>
+              <div class="row"><input type="range" id="allocSlider" min="0" max="100" value="65" /><span class="readout" id="allocVal">65% exploit</span></div>
+            </div>
+            <div class="callout story" id="allocPreview">
+              <span class="label">Next pick at 65% exploit</span>
+              <p>Fe-Cr-Ni-Al-Co-Mo &mdash; a high-entropy alloy family with 6 prior successful runs this quarter. Low risk, tightens an existing property model.</p>
+            </div>
+            <div class="edu-note">
+              <span class="tp-label"><button class="term" data-term="Explore vs. exploit (lab allocation)" data-def="At the lab-scheduling level, this is a real capacity decision: every station-hour spent exploring a totally new chemistry is an hour not spent tightening confidence on something already promising. Radical AI describes optimizing this trade-off explicitly, not leaving it to whichever candidate happens to be next in line.">Explore vs. exploit, at the scheduling level</button></span>
+              This is the same dial as console 01's Optimize step, but now it's a real capacity decision: every station-hour spent on a genuinely novel chemistry is an hour not spent tightening confidence on something already promising.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="block">
+      <h2>The story this screen is solving</h2>
+      <div class="callout story">
+        <span class="label">Realistic scenario</span>
+        <p>Three months after a promising alloy result, a customer asks Marcus to reproduce it at a slightly larger batch size &mdash; and the numbers don't quite match. In a conventional lab, this triggers a scramble through paper notebooks and Slack threads to reconstruct what actually happened. Here, Marcus opens the digital trail for the original sample in under a minute, sees the exact ramp rate, container lot, and dispense variance, and can tell within the hour whether the discrepancy is a real scale-up physics problem or a container-batch artifact. That's the difference between a lab that generates anecdotes and one that generates data Radical AI can actually train on.</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Sources</h2>
+      <div class="sources">
+        <span class="cite"><a href="https://www.radical-ai.com/autonomous-lab" target="_blank" rel="noopener">Autonomous Lab product page</a> &mdash; throughput claim, digital trail quote, explore/exploit allocation quote</span>
+        <span class="cite"><a href="https://www.radical-ai.com/news/scale-speed-precision-automated-microstructure-analysis-moves-different" target="_blank" rel="noopener">Microstructure analysis post</a> &mdash; consistency-of-method quote</span>
+        <span class="cite"><a href="https://www.cognitiverevolution.ai/material-abundance-radical-ais-closed-loop-lab-automates-scientific-discovery/" target="_blank" rel="noopener">Cognitive Revolution podcast</a> &mdash; LK-99 reproducibility example</span>
+      </div>
+    </section>
+
+    <footer class="foot">Console 02 of 5 &mdash; Autonomous Lab (Synthesize). <a href="../index.html">Back to all consoles</a></footer>
+  </div>
+
+  <script src="../assets/app.js" defer></script>
+  <script>
+    (function () {
+      var STAGES = ["queued", "synthesizing", "characterizing", "complete"];
+      var PILL = { queued: "info", synthesizing: "warn", characterizing: "warn", complete: "ok" };
+      var jobs = [
+        { id: 1, station: "Station 1", comp: "Ga(0.91)Al(0.09)N", source: "Antimatter #A-2291", stage: 2 },
+        { id: 2, station: "Station 2", comp: "Ga(0.88)Sc(0.05)Al(0.07)N", source: "Antimatter #A-2291", stage: 1 },
+        { id: 3, station: "Station 3", comp: "FeCrNiAlCoMo", source: "Antimatter #A-2140", stage: 3 },
+        { id: 4, station: "Station 4", comp: "FeCrNiAlCoW", source: "Antimatter #A-2140", stage: 0 }
+      ];
+      var selectedId = null;
+      var completedToday = 14;
+
+      var trailData = {
+        1: { temp: "1180°C", atm: "Ar, O<50ppm", ramp: "8°C/min", hold: "4h 20m", container: "Alumina crucible, lot 0417", dispense: "0.3%", anomaly: "none", override: "none", xrd: "single-phase", sdas: "18.4µm", fedback: "yes, 14:02" },
+        2: { temp: "1165°C", atm: "Ar, O<50ppm", ramp: "6°C/min", hold: "5h 00m", container: "Alumina crucible, lot 0417", dispense: "0.6%", anomaly: "dispense retry ×1", override: "none", xrd: "pending", sdas: "pending", fedback: "not yet" },
+        3: { temp: "1420°C", atm: "Ar, O<10ppm", ramp: "10°C/min", hold: "6h 45m", container: "MgO crucible, lot 0392", dispense: "0.2%", anomaly: "none", override: "none", xrd: "single-phase", sdas: "22.1µm", fedback: "yes, 09:41" },
+        4: { temp: "—", atm: "—", ramp: "—", hold: "—", container: "—", dispense: "—", anomaly: "—", override: "—", xrd: "—", sdas: "—", fedback: "—" }
+      };
+
+      function renderQueue() {
+        var body = document.getElementById("queueBody");
+        body.innerHTML = "";
+        jobs.forEach(function (job) {
+          var tr = document.createElement("tr");
+          tr.setAttribute("data-job", job.id);
+          if (job.id === selectedId) tr.classList.add("selected");
+          var stageName = STAGES[job.stage];
+          tr.innerHTML =
+            "<td>" + job.station + "</td>" +
+            "<td class=\"mono\">" + job.comp + "</td>" +
+            "<td class=\"mono\">" + job.source + "</td>" +
+            "<td><span class=\"pill " + PILL[stageName] + "\">" + stageName + "</span></td>";
+          tr.addEventListener("click", function () {
+            selectedId = job.id;
+            renderQueue();
+            document.getElementById("viewTrailBtn").disabled = false;
+          });
+          body.appendChild(tr);
+        });
+      }
+
+      function renderTrail() {
+        var intro = document.getElementById("trailIntro");
+        var grid = document.getElementById("trailGrid");
+        var note = document.getElementById("trailNote");
+        if (!selectedId) { intro.style.display = "block"; grid.style.display = "none"; note.style.display = "none"; return; }
+        var d = trailData[selectedId];
+        intro.style.display = "none";
+        grid.style.display = "grid";
+        note.style.display = "block";
+        document.getElementById("tp-temp").textContent = d.temp;
+        document.getElementById("tp-atm").textContent = d.atm;
+        document.getElementById("tp-ramp").textContent = d.ramp;
+        document.getElementById("tp-hold").textContent = d.hold;
+        document.getElementById("tp-container").textContent = d.container;
+        document.getElementById("tp-dispense").textContent = d.dispense;
+        document.getElementById("tp-anomaly").textContent = d.anomaly;
+        document.getElementById("tp-override").textContent = d.override;
+        document.getElementById("tp-xrd").textContent = d.xrd;
+        document.getElementById("tp-sdas").textContent = d.sdas;
+        document.getElementById("tp-fedback").textContent = d.fedback;
+      }
+
+      document.getElementById("advanceBtn").addEventListener("click", function () {
+        var advancedAny = false;
+        jobs.forEach(function (job) {
+          if (job.stage < 3) {
+            job.stage += 1;
+            advancedAny = true;
+            if (job.stage === 3) completedToday += 1;
+          }
+        });
+        renderQueue();
+        var gaugePct = Math.min(100, Math.round((completedToday / 25) * 100));
+        document.getElementById("throughputCount").textContent = completedToday;
+        document.getElementById("throughputGauge").style.width = gaugePct + "%";
+        window.RadicalUI.toast(advancedAny ? "Shift advanced +1hr" : "All jobs already complete this shift");
+      });
+
+      document.getElementById("viewTrailBtn").addEventListener("click", function () {
+        renderTrail();
+        window.RadicalUI.goToStep(document.querySelector(".journey"), "trail");
+      });
+
+      var alloc = document.getElementById("allocSlider");
+      var allocVal = document.getElementById("allocVal");
+      var allocPreview = document.getElementById("allocPreview");
+      function renderAlloc() {
+        var v = parseInt(alloc.value, 10);
+        allocVal.textContent = v + "% exploit";
+        var label = allocPreview.querySelector(".label");
+        var p = allocPreview.querySelector("p");
+        if (v >= 60) {
+          label.textContent = "Next pick at " + v + "% exploit";
+          p.textContent = "Fe-Cr-Ni-Al-Co-Mo — a high-entropy alloy family with 6 prior successful runs this quarter. Low risk, tightens an existing property model.";
+        } else if (v >= 35) {
+          label.textContent = "Next pick at " + v + "% exploit";
+          p.textContent = "Fe-Cr-Ni-Al-Co-W — same family, new element substitution. Moderate risk, tests whether the trend generalizes.";
+        } else {
+          label.textContent = "Next pick at " + v + "% exploit";
+          p.textContent = "Fe-Mn-Ni-Al-Ti — a chemistry family with no prior runs. High risk, high information value if it works.";
+        }
+      }
+      alloc.addEventListener("input", renderAlloc);
+
+      renderQueue();
+      renderTrail();
+      renderAlloc();
+    })();
+  </script>
+</body>
+</html>
